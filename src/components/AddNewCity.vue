@@ -1,6 +1,6 @@
 <template>
   <div class="container form-add-new">
-    <div class="" style="margin-bottom: 10px;">
+    <div class="" style="margin-bottom: 10px">
       <router-link :to="'/'">Back to weather widget</router-link>
     </div>
     <v-text-field
@@ -30,6 +30,8 @@
 import CardWeatherVue from "./CardWeather.vue";
 import MyLds from "./MyLds.vue";
 import Notify from "simple-notify";
+import { createweather } from "@/firebase.js";
+
 export default {
   name: "AddNewCity",
   components: {
@@ -71,15 +73,16 @@ export default {
       }
     },
     addNew() {
-      let listDataWeather = [];
-      let listDataWeatherCache = JSON.parse(
-        localStorage.getItem("dataWeather")
-      );
-      if (listDataWeatherCache) {
-        if (
-          listDataWeatherCache.find((x) => x.id == this.dataWeather.id) !=
-          undefined
-        ) {
+      this.dataWeather = {
+        id: this.dataWeather.id,
+        main: this.dataWeather.main,
+        weather: this.dataWeather.weather,
+        name: this.dataWeather.name,
+      };
+
+      createweather(this.dataWeather)
+        .then((weather) => {
+          console.log(weather);
           new Notify({
             status: "warning",
             title: "Weather City Already Exist",
@@ -96,49 +99,8 @@ export default {
             type: 1,
             position: "right top",
           });
-          return true;
-        }
-        listDataWeatherCache.push(this.dataWeather);
-        localStorage.setItem(
-          "dataWeather",
-          JSON.stringify(listDataWeatherCache)
-        );
-        new Notify({
-          status: "success",
-          title: "Weather City Success",
-          effect: "fade",
-          speed: 300,
-          customClass: null,
-          customIcon: null,
-          showIcon: true,
-          showCloseButton: true,
-          autoclose: true,
-          autotimeout: 3000,
-          gap: 20,
-          distance: 20,
-          type: 1,
-          position: "right top",
-        });
-      } else {
-        new Notify({
-          status: "success",
-          title: "Weather City Success",
-          effect: "fade",
-          speed: 300,
-          customClass: null,
-          customIcon: null,
-          showIcon: true,
-          showCloseButton: true,
-          autoclose: true,
-          autotimeout: 3000,
-          gap: 20,
-          distance: 20,
-          type: 1,
-          position: "right top",
-        });
-        listDataWeather.push(this.dataWeather);
-        localStorage.setItem("dataWeather", JSON.stringify(listDataWeather));
-      }
+        })
+        .catch((error) => {console.log('%cAddNewCity.vue line:103 error', 'color: #007acc;', error);});
     },
   },
 };
