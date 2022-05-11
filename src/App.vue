@@ -1,26 +1,27 @@
 <template>
-  <div>
-   <router-view></router-view>
-  </div>
+  <v-app>
+    <v-main>
+      <router-view />
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-
 export default {
   name: "App",
-  components: {
+  data() {
+    return {};
   },
 };
 </script>
-
 <style>
-*{
-  padding:0;
-  margin:0;
+* {
+  padding: 0;
+  margin: 0;
   box-sizing: border-box;
 }
 #app {
- font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   margin: 0px auto;
   height: 815px;
   max-width: 375px;

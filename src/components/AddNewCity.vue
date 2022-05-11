@@ -1,13 +1,24 @@
 <template>
   <div class="container form-add-new">
-    <input
-      type="text"
-      name=""
-      id=""
+    <div class="" style="margin-bottom: 10px;">
+      <router-link :to="'/'">Back to weather widget</router-link>
+    </div>
+    <v-text-field
       v-model="name_city"
       @keypress="getDataCity($event)"
-    />
-    <button @click="addNew" :disabled="!dataWeather">Add New</button>
+      :success-messages="['Success']"
+      success
+    ></v-text-field>
+    <v-btn
+      depressed
+      elevation="2"
+      raised
+      :disabled="!dataWeather"
+      color="primary"
+      @click="addNew"
+      >Add New</v-btn
+    >
+
     <MyLds v-if="isLoading && !dataWeather" />
     <div class="">
       <CardWeatherVue v-if="dataWeather" :dataWeather="dataWeather" />
@@ -18,6 +29,7 @@
 <script>
 import CardWeatherVue from "./CardWeather.vue";
 import MyLds from "./MyLds.vue";
+import Notify from "simple-notify";
 export default {
   name: "AddNewCity",
   components: {
@@ -64,20 +76,66 @@ export default {
         localStorage.getItem("dataWeather")
       );
       if (listDataWeatherCache) {
-        listDataWeatherCache.push(this.dataWeather);
-
         if (
-          listDataWeatherCache.find((x) => x.id == this.dataWeather.id) != undefined
+          listDataWeatherCache.find((x) => x.id == this.dataWeather.id) !=
+          undefined
         ) {
+          new Notify({
+            status: "warning",
+            title: "Weather City Already Exist",
+            effect: "fade",
+            speed: 300,
+            customClass: null,
+            customIcon: null,
+            showIcon: true,
+            showCloseButton: true,
+            autoclose: true,
+            autotimeout: 3000,
+            gap: 20,
+            distance: 20,
+            type: 1,
+            position: "right top",
+          });
           return true;
         }
-
+        listDataWeatherCache.push(this.dataWeather);
         localStorage.setItem(
           "dataWeather",
           JSON.stringify(listDataWeatherCache)
         );
+        new Notify({
+          status: "success",
+          title: "Weather City Success",
+          effect: "fade",
+          speed: 300,
+          customClass: null,
+          customIcon: null,
+          showIcon: true,
+          showCloseButton: true,
+          autoclose: true,
+          autotimeout: 3000,
+          gap: 20,
+          distance: 20,
+          type: 1,
+          position: "right top",
+        });
       } else {
-        console.log(this.dataWeather);
+        new Notify({
+          status: "success",
+          title: "Weather City Success",
+          effect: "fade",
+          speed: 300,
+          customClass: null,
+          customIcon: null,
+          showIcon: true,
+          showCloseButton: true,
+          autoclose: true,
+          autotimeout: 3000,
+          gap: 20,
+          distance: 20,
+          type: 1,
+          position: "right top",
+        });
         listDataWeather.push(this.dataWeather);
         localStorage.setItem("dataWeather", JSON.stringify(listDataWeather));
       }
@@ -92,23 +150,6 @@ export default {
   flex-direction: column;
   padding: 20px;
   margin-top: 100px;
-  input {
-    height: 30px;
-    max-width: 60%;
-    margin: auto;
-    border-radius: 5px;
-    border: 1px solid #333;
-    margin-bottom: 10px;
-    padding: 15px;
-  }
-  button {
-    width: 60%;
-    margin: auto;
-    text-align: center;
-    padding: 7px;
-    border-radius: 5px;
-    border: 1px solid #333;
-  }
 }
 .card__city-manager {
   width: 50%;

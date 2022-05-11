@@ -1,5 +1,8 @@
 <template>
   <div class="card__city-manager" :class="backgroundTemplate">
+    <button class="removeWidget" v-if="isRemove" @click="removeWidget">
+      <v-icon color="#ffffff"> mdi-minus </v-icon>
+    </button>
     <div class="card__city-manager__content">
       <div class="card__city-icon">
         <img :src="iconWeather" />
@@ -17,11 +20,30 @@ export default {
       type: Object,
       required: true,
     },
+    isRemove: {
+      default: false,
+      type: Boolean,
+    },
   },
   data() {
     return {
       backgroundTemplate: null,
     };
+  },
+  methods: {
+    removeWidget() {
+      let dataWeatherCache = JSON.parse(localStorage.getItem("dataWeather"));
+      let dataAfterRemove = dataWeatherCache.filter(
+        (item) => item.id !== this.dataWeather.id
+      );
+      this.saveLocalStorage("dataWeather", dataAfterRemove);
+      this.$emit("update-dataWeather", dataAfterRemove);
+    },
+    saveLocalStorage(key, data) {
+      if (data) {
+        localStorage.setItem(key, JSON.stringify(data));
+      }
+    },
   },
   created() {
     if ("n" == this.dataWeather.weather[0].icon.slice(2)) {
@@ -37,11 +59,14 @@ export default {
       "d" == this.dataWeather.weather[0].icon.slice(2) &&
       this.dataWeather.main.temp <= 20
     ) {
+      this.backgroundTemplate = "background-snow";
+    }
+    if (this.dataWeather.weather[0].main == "Rain") {
       this.backgroundTemplate = "background-rain";
     }
     if (
       "n" == this.dataWeather.weather[0].icon.slice(2) &&
-      this.dataWeather.main.temp <= 1
+      this.dataWeather.main.temp <= 10
     ) {
       this.backgroundTemplate = "background-snow";
     }
@@ -94,6 +119,16 @@ $color-background-snow: linear-gradient(
   background: $color-background-snow;
 }
 .card__city-manager {
+  position: relative;
+  .removeWidget {
+    width: 30px;
+    height: 30px;
+    background: #000000;
+    border-radius: 30px;
+    position: absolute;
+    right: -10px;
+    top: -10px;
+  }
   .card__city-manager__content {
     height: 100%;
     .card__city-icon {

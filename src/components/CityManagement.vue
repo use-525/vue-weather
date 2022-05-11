@@ -1,8 +1,14 @@
 <template>
   <div class="container city-management-container">
-    <h2>City Managernt</h2>
+    <h2>Weather Widget Managernt</h2>
     <div class="list__city-manager">
-      <CardWeatherVue v-for="city in list_city" :key="city.index" />
+      <CardWeatherVue
+        v-for="weather in listWeather"
+        :dataWeather="weather"
+        :key="weather.index"
+        :isRemove="true"
+        @update-dataWeather="updateDataWeather"
+      />
       <div
         class="card__city-manager card__city-add-new"
         @click="openViewAddNew"
@@ -26,13 +32,18 @@ export default {
   },
   data() {
     return {
-      list_city: [1, 2, 3, 4],
-      api: "https://api.openweathermap.org/data/2.5/weather?q=HaNoi&units=metric&appid=cc02418d8eedb2ccfe78901273f6207b",
+      listWeather: null,
     };
+  },
+  created() {
+    this.listWeather = JSON.parse(localStorage.getItem("dataWeather"));
   },
   methods: {
     openViewAddNew() {
       this.$router.push({ name: "add-new-city" });
+    },
+    updateDataWeather($event) {
+      this.listWeather = $event;
     },
   },
 };
