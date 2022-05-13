@@ -21,7 +21,11 @@
 
     <MyLds v-if="isLoading && !dataWeather" />
     <div class="">
-      <CardWeatherVue v-if="dataWeather" :dataWeather="dataWeather" />
+      <CardWeatherVue
+        v-if="dataWeather"
+        :dataWeather="dataWeather"
+        :weatherIdDB="weatherIdDB"
+      />
     </div>
   </div>
 </template>
@@ -46,14 +50,15 @@ export default {
       api_key: "cc02418d8eedb2ccfe78901273f6207b",
       isLoading: false,
       dataWeather: null,
+      weatherIdDB: null,
     };
   },
   methods: {
-    async getDataCity($event) {
+    getDataCity($event) {
       if ($event.charCode === 13) {
         this.isLoading = true;
         this.dataWeather = null;
-        await fetch(
+        fetch(
           `https://api.openweathermap.org/data/2.5/weather?q=${this.name_city}&units=metric&appid=${this.api_key}`
         )
           .then((response) => response.json())
@@ -61,66 +66,33 @@ export default {
             if (data.cod >= 400 && data.cod < 600) {
               this.isLoading = false;
               this.dataWeather = null;
+              this.notify("error", "The city doesn't exist");
               return;
             }
             this.isLoading = false;
             this.dataWeather = data;
           })
-          .catch((error) => {
-            console.error(error.message);
+          .catch(() => {
             this.dataWeather = null;
           });
       }
     },
     async addNew() {
-      this.dataWeather = {
+      let weatherCurrent = {
         id: this.dataWeather.id,
-        main: this.dataWeather.main,
-        weather: this.dataWeather.weather,
-        name: this.dataWeather.name,
       };
       try {
         let allWeather = await useLoadweathers();
         let checkAllData = allWeather.value?.filter(
-          (weather) => weather.id == this.dataWeather.id
+          (data) => data.data.id == weatherCurrent.id
         );
         if (checkAllData.length > 0) {
-          new Notify({
-            status: "warning",
-            title: "Weather City Already Exist",
-            effect: "fade",
-            speed: 300,
-            customClass: null,
-            customIcon: null,
-            showIcon: true,
-            showCloseButton: true,
-            autoclose: true,
-            autotimeout: 3000,
-            gap: 20,
-            distance: 20,
-            type: 1,
-            position: "right top",
-          });
+          this.notify("warning", "Weather City Already Exist");
         } else {
-          createweather(this.dataWeather)
+          createweather(weatherCurrent)
             .then((weather) => {
-              console.log(weather)
-              new Notify({
-                status: "success",
-                title: "Weather City Add New Success",
-                effect: "fade",
-                speed: 300,
-                customClass: null,
-                customIcon: null,
-                showIcon: true,
-                showCloseButton: true,
-                autoclose: true,
-                autotimeout: 3000,
-                gap: 20,
-                distance: 20,
-                type: 1,
-                position: "right top",
-              });
+              this.weatherIdDB = weather.id;
+              this.notify("success", "Weather City Add New Success");
             })
             .catch((error) => {
               console.log(
@@ -130,9 +102,26 @@ export default {
               );
             });
         }
+        this.name_city = "";
       } catch (error) {
         console.log(error);
       }
+    },
+    notify(type, message) {
+      new Notify({
+        status: type,
+        title: message,
+        effect: "fade",
+        speed: 300,
+        showIcon: true,
+        showCloseButton: true,
+        autoclose: true,
+        autotimeout: 1500,
+        gap: 20,
+        distance: 20,
+        type: 1,
+        position: "right top",
+      });
     },
   },
 };

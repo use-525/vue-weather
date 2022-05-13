@@ -38,18 +38,17 @@ export const createweather = (weather) => {
 //   return weatherCollection.doc(id).update(weather);
 // };
 
-// export const deleteweather = (id: string) => {
-//   return weatherCollection.doc(id).delete();
-// };
+export const deleteweather = (id) => {
+  return weatherCollection.doc(id).delete();
+};
 
 export const useLoadweathers = async () => {
   const weathers = ref([]);
   const close = await weatherCollection.get();
   weathers.value = close.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data(),
+    data: doc.data(),
   }));
-
   onUnmounted(close);
   return weathers;
 };

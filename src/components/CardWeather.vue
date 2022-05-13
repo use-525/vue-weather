@@ -13,6 +13,7 @@
   </div>
 </template>
 <script>
+import { deleteweather } from "@/firebase.js";
 export default {
   name: "CardWeatherVue",
   props: {
@@ -24,6 +25,9 @@ export default {
       default: false,
       type: Boolean,
     },
+    weatherIdDB: {
+      required: true,
+    },
   },
   data() {
     return {
@@ -31,18 +35,12 @@ export default {
     };
   },
   methods: {
-    removeWidget() {
-      let dataWeatherCache = JSON.parse(localStorage.getItem("dataWeather"));
-      let dataAfterRemove = dataWeatherCache.filter(
-        (item) => item.id !== this.dataWeather.id
-      );
-      this.saveLocalStorage("dataWeather", dataAfterRemove);
-      this.$emit("update-dataWeather", dataAfterRemove);
-    },
-    saveLocalStorage(key, data) {
-      if (data) {
-        localStorage.setItem(key, JSON.stringify(data));
+    async removeWidget() {
+      let removeWidget = await deleteweather(this.weatherIdDB);
+      if(!removeWidget){
+        this.$emit("update-dataWeather", this.weatherIdDB);
       }
+  
     },
   },
   created() {

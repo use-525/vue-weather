@@ -2,11 +2,13 @@
   <div class="container city-management-container">
     <h2>Weather Widget Managernt</h2>
     <div class="list__city-manager">
+      <MyLds v-if="!isLoading" />
       <CardWeatherVue
         v-for="weather in listWeather"
-        :dataWeather="weather"
+        :dataWeather="weather.weatherData"
         :key="weather.index"
         :isRemove="true"
+        :weatherIdDB="weather.weatherIdDB"
         @update-dataWeather="updateDataWeather"
       />
       <div
@@ -26,24 +28,50 @@
 
 <script>
 import CardWeatherVue from "./CardWeather.vue";
+import { useLoadweathers } from "@/firebase.js";
+import MyLds from "./MyLds.vue";
 export default {
   components: {
     CardWeatherVue,
+    MyLds,
   },
   data() {
     return {
-      listWeather: null,
+      listWeather: [],
+      api_url:
+        "https://api.openweathermap.org/data/2.5/weather?q=HaNoi&units=metric&appid=",
+      api_key: "cc02418d8eedb2ccfe78901273f6207b",
+      isLoading: false,
     };
   },
   created() {
-    this.listWeather = JSON.parse(localStorage.getItem("dataWeather"));
+    this.getAllData();
   },
   methods: {
+    async getAllData() {
+      let dataWeatherDataBase = await useLoadweathers();
+      dataWeatherDataBase.value?.forEach(async (data) => {
+        let response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?id=${data.data.id}&units=metric&appid=${this.api_key}`
+        );
+        let weather = await response.json();
+        this.listWeather.push({
+          weatherIdDB: data.id,
+          weatherData: weather,
+        });
+        if (this.listWeather.length == dataWeatherDataBase.value?.length) {
+          this.isLoading = true;
+        }
+      });
+      this.isLoading = true;
+    },
     openViewAddNew() {
       this.$router.push({ name: "add-new-city" });
     },
     updateDataWeather($event) {
-      this.listWeather = $event;
+      this.listWeather = this.listWeather.filter(
+        (data) => data.weatherIdDB != $event
+      );
     },
   },
 };
