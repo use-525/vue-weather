@@ -1,12 +1,14 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
-import { ref, onUnmounted } from "vue";
+import {
+  ref,
+  onUnmounted
+} from "vue";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBZsqxPtsI7l5fldoGD3FHqqIzBrAepTBU",
   authDomain: "vue-firebase-c9df9.firebaseapp.com",
-  databaseURL:
-    "https://vue-firebase-c9df9-default-rtdb.asia-southeast1.firebasedatabase.app",
+  databaseURL: "https://vue-firebase-c9df9-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "vue-firebase-c9df9",
   storageBucket: "vue-firebase-c9df9.appspot.com",
   messagingSenderId: "1020636048290",
@@ -21,7 +23,6 @@ const db = firebaseApp.firestore();
 const weatherCollection = db.collection("weather");
 
 export const createweather = (weather) => {
-  console.log(weather);
   return weatherCollection.add(weather);
 };
 
@@ -41,14 +42,14 @@ export const createweather = (weather) => {
 //   return weatherCollection.doc(id).delete();
 // };
 
-// export const useLoadweathers = () => {
-//   const weathers = ref([]);
-//   const close = weatherCollection.onSnapshot((snapshot) => {
-//     weathers.value = snapshot.docs.map((doc) => ({
-//       id: doc.id,
-//       ...doc.data(),
-//     }));
-//   });
-//   onUnmounted(close);
-//   return weathers;
-// };
+export const useLoadweathers = async () => {
+  const weathers = ref([]);
+  const close = await weatherCollection.get();
+  weathers.value = close.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  onUnmounted(close);
+  return weathers;
+};

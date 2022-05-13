@@ -30,7 +30,7 @@
 import CardWeatherVue from "./CardWeather.vue";
 import MyLds from "./MyLds.vue";
 import Notify from "simple-notify";
-import { createweather } from "@/firebase.js";
+import { createweather, useLoadweathers } from "@/firebase.js";
 
 export default {
   name: "AddNewCity",
@@ -72,17 +72,19 @@ export default {
           });
       }
     },
-    addNew() {
+    async addNew() {
       this.dataWeather = {
         id: this.dataWeather.id,
         main: this.dataWeather.main,
         weather: this.dataWeather.weather,
         name: this.dataWeather.name,
       };
-
-      createweather(this.dataWeather)
-        .then((weather) => {
-          console.log(weather);
+      try {
+        let allWeather = await useLoadweathers();
+        let checkAllData = allWeather.value?.filter(
+          (weather) => weather.id == this.dataWeather.id
+        );
+        if (checkAllData.length > 0) {
           new Notify({
             status: "warning",
             title: "Weather City Already Exist",
@@ -99,8 +101,38 @@ export default {
             type: 1,
             position: "right top",
           });
-        })
-        .catch((error) => {console.log('%cAddNewCity.vue line:103 error', 'color: #007acc;', error);});
+        } else {
+          createweather(this.dataWeather)
+            .then((weather) => {
+              console.log(weather)
+              new Notify({
+                status: "success",
+                title: "Weather City Add New Success",
+                effect: "fade",
+                speed: 300,
+                customClass: null,
+                customIcon: null,
+                showIcon: true,
+                showCloseButton: true,
+                autoclose: true,
+                autotimeout: 3000,
+                gap: 20,
+                distance: 20,
+                type: 1,
+                position: "right top",
+              });
+            })
+            .catch((error) => {
+              console.log(
+                "%cAddNewCity.vue line:103 error",
+                "color: #007acc;",
+                error
+              );
+            });
+        }
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 };
