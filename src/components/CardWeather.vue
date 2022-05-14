@@ -37,10 +37,9 @@ export default {
   methods: {
     async removeWidget() {
       let removeWidget = await deleteweather(this.weatherIdDB);
-      if(!removeWidget){
+      if (!removeWidget) {
         this.$emit("update-dataWeather", this.weatherIdDB);
       }
-  
     },
   },
   created() {
@@ -118,6 +117,7 @@ $color-background-snow: linear-gradient(
 }
 .card__city-manager {
   position: relative;
+  box-shadow: 2px 2px 25px -9px #000000;
   .removeWidget {
     width: 30px;
     height: 30px;
